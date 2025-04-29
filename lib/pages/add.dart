@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:stock1/fun/scanPage.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({Key? key}) : super(key: key);
@@ -14,53 +15,43 @@ class _AddProductPageState extends State<AddProductPage> {
   final TextEditingController _productPriceController = TextEditingController();
 
   Future<void> scanBarcode(BuildContext context) async {
-    String barcodeScanRes;
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666', // tarayıcı ekranındaki renk
-        'İptal', // iptal butonu yazısı
-        true, // flash kullanılabilir mi
-        ScanMode.BARCODE,
-      );
-
-      if (barcodeScanRes != '-1') {
-        // Barkod başarıyla okundu
-        setState(() {
-          _barcodeController.text = barcodeScanRes;
-        });
-        addNewProduct(barcodeScanRes, context);
-      }
-    } catch (e) {
-      debugPrint('Hata: $e');
+    final String? barcodeScanRes = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const BarcodeScannerPage(),
+      ),
+    );
+    if (barcodeScanRes != null) {
+      setState(() {
+        _barcodeController.text = barcodeScanRes;
+      });
+      addNewProduct(barcodeScanRes, context);
     }
   }
 
   void addNewProduct(String barcode, BuildContext context) {
-    // Burada barkodla birlikte yeni ürün ekleme işlemini yapabilirsin
-    // Örneğin: başka bir sayfaya yönlendirme veya ürün listesine ekleme
+    // Barkodla birlikte yeni ürün ekleme işlemini buradan yapılabilir
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text("Yeni Ürün"),
+        title: const Text("Yeni Ürün"),
         content: Text("Barkod: $barcode\nÜrün eklenecek mi?"),
         actions: [
           TextButton(
-            child: Text("Ekle"),
+            child: const Text("Ekle"),
             onPressed: () {
               // ürün ekleme işlemi yapılır
               Navigator.of(ctx).pop();
             },
           ),
           TextButton(
-            child: Text("İptal"),
+            child: const Text("İptal"),
             onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
       ),
     );
   }
-
-  // Örneğin barkod okutma işlemini simüle eden fonksiyon
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +64,7 @@ class _AddProductPageState extends State<AddProductPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Barkod okuma kısmı
+              // Barkod okunan değeri gösteren TextField
               TextField(
                 controller: _barcodeController,
                 decoration: const InputDecoration(
@@ -108,6 +99,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 10),
+              // Ürün adedi bilgisi
               TextField(
                 controller: _productPriceController,
                 decoration: const InputDecoration(
